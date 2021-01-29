@@ -1,5 +1,5 @@
 import { fetchUtils, HttpError } from 'react-admin';
-import { stringify } from 'query-string';
+/* import { stringify } from 'query-string'; */
 
 const apiUrl = process.env.REACT_APP_API_URL;
 const apiKey = process.env.REACT_APP_API_KEY
@@ -10,40 +10,34 @@ export const dataProvider = {
         return new Promise((resolve, reject) => {
             const query = "the+matrix";
             const url = `${apiUrl}?apikey=${apiKey}&s=${query}`
-            httpClient(url, { ...options, headers: requestHeaders })
-                .then(response =>
-                    response.text().then(text => ({
-                        status: response.status,
-                        statusText: response.statusText,
-                        headers: response.headers,
-                        body: text,
-                    }))
-                )
-                .then(({ status, statusText, headers, body }) => {
-                    let json;
-                    try {
-                        json = JSON.parse(body);
-                    } catch (e) {
-                        // not json, no big deal
-                    }
-                    if (status < 200 || status >= 300) {
-                        return reject(
-                            new HttpError(
-                                (json && json.message) || statusText,
-                                status,
-                                json
-                            )
-                        );
-                    }
-                    return resolve({ status, headers, body, json });
-                });
-        });
+            httpClient(url/* , { ...options, headers: requestHeaders } */)
+            .then(response => {
+                const {status, statusText, header/* HERE */, body} = response;
+                let json;
+                try {
+                    json = JSON.parse(body)
+                } catch (e) {
+                    //not Json. Cool.
+                }
+                if (status < 200 || status >= 300) {
+                    return reject(
+                        new HttpError(
+                            (json && json.message) || statusText,
+                            status,
+                            json
+                        )
+                    );
+                }
+                return resolve({ status, header, body, json });
+            })
+        }).then(newData=> {return {data:(newData.json.Search.map(res=>({
+            poster: res.Poster, 
+            title: res.Title, 
+            type: res.Type,
+            year: res.Year,
+            id:res.imdbID}))), total: newData.json.Search.length}})
     },
-        /* const query = "the+matrix";
-        const url = `${apiUrl}?apikey=${apiKey}&s=${query}`
-        console.log(url)
 
-        return httpClient(url).then(response => console.log(response)) */
     } 
     /* getList: (resource, params) => {
         const { page, perPage } = params.pagination;
