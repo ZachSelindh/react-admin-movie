@@ -1,10 +1,9 @@
 import * as React from "react";
 import { Admin, Resource, ListGuesser } from 'react-admin';
-import jsonServerProvider from 'ra-data-json-server';
+import { dataProvider } from "./utils/dataProvider"
 
-const dataProvider = jsonServerProvider(`${process.env.REACT_APP_API_URL}`);
 const App = () => <Admin dataProvider={dataProvider}>
-  <Resource name="users" list={ListGuesser} />
+  <Resource name="matrix" list={ListGuesser} />
 </Admin> 
 
 export default App;
