@@ -31,11 +31,9 @@ export const dataProvider = {
                 return resolve({ status, header, body, json });
             })
         }).then(newData=> {return {data:(newData.json.Search.map(res=>({
-            poster: res.Poster, 
-            title: res.Title, 
-            type: res.Type,
-            year: res.Year,
-            id:res.imdbID}))), total: newData.json.Search.length}})
+            ...res,
+            id:res.imdbID}))), 
+            total: newData.json.Search.length}})
     },
 
     } 
