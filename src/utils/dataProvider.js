@@ -1,4 +1,4 @@
-import { fetchUtils } from 'react-admin';
+import { fetchUtils, HttpError } from 'react-admin';
 import { stringify } from 'query-string';
 
 const apiUrl = process.env.REACT_APP_API_URL;
@@ -6,16 +6,44 @@ const apiKey = process.env.REACT_APP_API_KEY
 const httpClient = fetchUtils.fetchJson;
 
 export const dataProvider = {
-    
     getList: (resource, params) => {
         return new Promise((resolve, reject) => {
-        const query = "the+matrix";
+            const query = "the+matrix";
+            const url = `${apiUrl}?apikey=${apiKey}&s=${query}`
+            httpClient(url, { ...options, headers: requestHeaders })
+                .then(response =>
+                    response.text().then(text => ({
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: response.headers,
+                        body: text,
+                    }))
+                )
+                .then(({ status, statusText, headers, body }) => {
+                    let json;
+                    try {
+                        json = JSON.parse(body);
+                    } catch (e) {
+                        // not json, no big deal
+                    }
+                    if (status < 200 || status >= 300) {
+                        return reject(
+                            new HttpError(
+                                (json && json.message) || statusText,
+                                status,
+                                json
+                            )
+                        );
+                    }
+                    return resolve({ status, headers, body, json });
+                });
+        });
+    },
+        /* const query = "the+matrix";
         const url = `${apiUrl}?apikey=${apiKey}&s=${query}`
         console.log(url)
 
-        return httpClient(url).then(response => console.log(response))
-        }
-    }
+        return httpClient(url).then(response => console.log(response)) */
     } 
     /* getList: (resource, params) => {
         const { page, perPage } = params.pagination;
@@ -103,4 +131,3 @@ export const dataProvider = {
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({ data: json }));
     }, */
-};
