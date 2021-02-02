@@ -1,5 +1,5 @@
 import { fetchUtils, HttpError } from 'react-admin';
-/* import { stringify } from 'query-string'; */
+import { stringify } from 'query-string';
 
 const apiUrl = process.env.REACT_APP_API_URL;
 const apiKey = process.env.REACT_APP_API_KEY
@@ -8,10 +8,13 @@ const httpClient = fetchUtils.fetchJson;
 export const dataProvider = {
     getList: (resource, params) => {
         return new Promise((resolve, reject) => {
+            console.log("params", params)
+            console.log("resource", resource)
             const query = "the+matrix";
             const url = `${apiUrl}?apikey=${apiKey}&s=${query}`
             httpClient(url/* , { ...options, headers: requestHeaders } */)
             .then(response => {
+                console.log(response)
                 const {status, statusText, header/* HERE */, body} = response;
                 let json;
                 try {
